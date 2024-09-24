@@ -22,7 +22,7 @@ export function ToastMessage({
   description,
   action = 'success',
   onClose,
-}: Props) {
+}: Readonly<Props>) {
   return (
     <Toast
       nativeID={`toast-${id}`}
