@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   Center,
   Heading,
@@ -14,7 +15,7 @@ import { useNavigation } from '@react-navigation/native';
 import { AuthNavigatorRoutesProps } from '@routes/auth.routes';
 import { api } from "@services/api";
 import { AppError } from '@utils/AppError';
-
+import { useAuth } from '@hooks/useAuth';
 import { Input } from '@components/Input';
 import { Button } from '@components/Button';
 
@@ -41,7 +42,9 @@ const signUpSchema = yup.object({
 
 export function SignUp() {
   const toast = useToast();
+  const { singIn } = useAuth();
   const navigation = useNavigation<AuthNavigatorRoutesProps>();
+  const [isLoading, setIsLoading] = useState(false);
   const { control, handleSubmit, formState: { errors } } = useForm<FormDataProps>({
     resolver: yupResolver(signUpSchema),
   });
@@ -52,9 +55,13 @@ export function SignUp() {
 
   async function handleSignUp({ name, email, password }: FormDataProps) {
     try {
-      const response = await api.post('/users', { name, email, password });
-      console.log(response.data);
+      setIsLoading(true);
+      await api.post('/users', { name, email, password });
+      await singIn(email, password);
+  
     } catch (error) {
+      setIsLoading(false);
+
       const isAppError = error instanceof AppError;
       const title = isAppError ? error.message : 'Não foi possível criar a conta. Tente novamente mais tarde';
 
@@ -159,6 +166,7 @@ export function SignUp() {
 
             <Button
               title="Criar e acessar"
+              isLoading={isLoading}
               onPress={handleSubmit(handleSignUp)}
             />
           </Center>

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   Center,
   Heading,
@@ -5,17 +6,20 @@ import {
   ScrollView,
   Text,
   VStack,
+  useToast
 } from '@gluestack-ui/themed';
 import { Controller, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useNavigation } from '@react-navigation/native';
+import { useAuth } from '@hooks/useAuth';
 import BackgroundImg from '@assets/background.png';
 import Logo from '@assets/logo.svg';
-
+import { AppError } from '@utils/AppError';
 import { Input } from '@components/Input';
 import { Button } from '@components/Button';
 import { AuthNavigatorRoutesProps } from '@routes/auth.routes';
+import { ToastMessage } from '@components/ToastMessage';
 
 type FormDataProps = {
   email: string;
@@ -29,6 +33,9 @@ const signInSchema = yup.object({
 
 export function SignIn() {
   const navigation = useNavigation<AuthNavigatorRoutesProps>();
+  const { singIn } = useAuth();
+  const toast = useToast();
+  const [isLoading, setIsLoading] = useState(false);
 
   const { control, handleSubmit, formState: { errors } } = useForm<FormDataProps>({
     resolver: yupResolver(signInSchema),
@@ -38,8 +45,30 @@ export function SignIn() {
     navigation.navigate('signUp');
   }
 
-  function handleSignIn({ email, password }: FormDataProps) {
-    console.log({ email, password })
+  async function handleSignIn({ email, password }: FormDataProps) {
+    try {
+      setIsLoading(true);
+      await singIn(email, password);
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+ 
+      const title =  isAppError ? error.message : 'Não foi possível entrar. Tente novamente mais tarde.'
+    
+      toast.show({
+        placement: 'top',
+        render: ({ id }) => (
+          <ToastMessage
+            id={id}
+            action="error"
+            title={title}
+            onClose={() => toast.close(id)}
+          />
+        )
+      })
+      setIsLoading(false);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -103,6 +132,7 @@ export function SignIn() {
             <Button
               title="Acessar"
               onPress={handleSubmit(handleSignIn)}
+              isLoading={isLoading}
             />
           </Center>
 
