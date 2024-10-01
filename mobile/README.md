@@ -19,7 +19,7 @@ ___
 ## 🎨 Layout
 Imagens da aplicação são vistas abaixo:
 
-![Capa](https://github.com/crisfeitosa/igniteGym/blob/master/assets/Projeto.png?raw=true)
+![Capa](https://github.com/crisfeitosa/igniteGym/blob/master/mobile/assets/Projeto.png?raw=true)
 
 ___
 
