@@ -22,6 +22,10 @@ import RepetitionsSvg from '@assets/repetitions.svg';
 import BodySvg from '@assets/body.svg';
 import { ToastMessage } from '@components/ToastMessage';
 import { Loading } from '@components/Loading';
+import {
+  tagLastExerciseHistory,
+  tagLastExerciseHistoryTime,
+} from '@notifications/notificationsTags';
 
 type RouteParamsProps = {
   exerciseId: string;
@@ -47,6 +51,9 @@ export function Exercise() {
       
       await api.post('/history', { exercise_id: exerciseId });
 
+      tagLastExerciseHistory(exercise.name);
+      tagLastExerciseHistoryTime();
+
       toast.show({
         placement: 'top',
         render: ({ id }) => (
@@ -58,7 +65,7 @@ export function Exercise() {
           />
         )
       })
-      navigation.navigate('history');
+      navigation.navigate('history', { createWeekExercisesAmount: true });
     } catch (error) {
       const isAppError = error instanceof AppError;
       const title = isAppError ? error.message : 'Não foi possível registrar exercício.';

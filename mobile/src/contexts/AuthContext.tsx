@@ -3,6 +3,7 @@ import { UserDTO } from "@dtos/UserDTO";
 import { storageAuthTokenSave, storageAuthTokenGet, storageAuthTokenRemove } from '@storage/storageAuthToken';
 import { storageUserGet, storageUserSave, storageUserRemove } from '@storage/storageUser';
 import { api } from '@services/api';
+import { tagUserInfo } from '@notifications/notificationsTags';
 
 export type AuthContextDataProps = {
   user: UserDTO;
@@ -103,6 +104,10 @@ export function AuthContextProvider({ children }: Readonly<AuthContextProviderPr
       subscribe();
     }
   },[]);
+
+  useEffect(() => {
+    tagUserInfo({ userName: user.name, email: user.email })
+  }, [user.name]);
 
   return (
     <AuthContext.Provider value={{ user, singIn, signOut, updateUserProfile, isLoadingUserStorageData }}>

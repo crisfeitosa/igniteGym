@@ -1,6 +1,6 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { SectionList } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { Heading, Text, VStack, useToast } from '@gluestack-ui/themed';
 import { api } from '@services/api';
 import { AppError } from '@utils/AppError';
@@ -9,8 +9,16 @@ import { HistoryCard } from '@components/HistoryCard';
 import { ToastMessage } from '@components/ToastMessage';
 import { HistoryByDayDTO } from '@dtos/HistoryByDayDTO';
 import { Loading } from '@components/Loading';
+import { tagWeeklyExercisesAmount } from '@notifications/notificationsTags';
+
+type RouteParamsProps = {
+  createWeekExercisesAmount?: boolean
+}
 
 export function History() {
+  const route = useRoute();
+  const params = route.params as RouteParamsProps
+
   const toast = useToast();
 
   const [isLoading, setIsLoading] = useState(true);
@@ -48,6 +56,20 @@ export function History() {
       fetchHistory();
     },[])
   );
+
+  useEffect(() => {
+    if (params?.createWeekExercisesAmount && exercises) {
+      const amount = exercises.flatMap((day) => {
+        const days = day.data.filter(
+          (exercise) =>
+            new Date(exercise.created_at).getMonth() === new Date().getMonth(),
+        )
+        return days
+      }).length
+
+      tagWeeklyExercisesAmount(amount)
+    }
+  }, [exercises, params]);
 
   return (
     <VStack flex={1}>

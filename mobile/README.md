@@ -53,7 +53,7 @@ $ git clone https://github.com/crisfeitosa/igniteGym.git
 ```
 ___
 
-#### 🚧 Executando o Front-end
+### 🚧 Executando o Front-end
 ```bash
 
 # Instale as dependências necessárias
